@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+
+data/*.csv
+outputs/*.csv
+outputs/*.npy
+
+*.npy
+*.csv
+
+.env
+.venv/
+venv/
