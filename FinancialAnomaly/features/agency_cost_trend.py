@@ -69,4 +69,4 @@ if __name__ == "__main__":
     print(scored.sort_values("f4_agency_cost_trend", ascending=False).head(10).to_string(index=False))
 
     print("\nTop 10 agencies by FALLING cost trend:")
-    print(scored.sort_values("f4_agency_cost_trend", ascending=True).head(10).to_string(index=False))
+    print(scored.sort_values("f4_agency_cost_trend", ascending=True).head(10).to_string(index=False))   
