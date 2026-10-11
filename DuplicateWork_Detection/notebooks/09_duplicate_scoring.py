@@ -3,8 +3,15 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
 
-INPUT_FILE = BASE / "outputs" / "training_features.csv"
-OUTPUT_FILE = BASE / "outputs" / "duplicate_scores.csv"
+# INPUT_FILE = BASE / "outputs" / "training_features.csv"
+# OUTPUT_FILE = BASE / "outputs" / "duplicate_scores.csv"
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODULE3_DIR = PROJECT_ROOT / "Artifacts" / "module3"
+
+INPUT_FILE = MODULE3_DIR / "training_features.csv"
+OUTPUT_FILE = MODULE3_DIR / "duplicate_scores.csv"
 
 df = pd.read_csv(INPUT_FILE)
 

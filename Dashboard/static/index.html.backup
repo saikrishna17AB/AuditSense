@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MPLADS Guardian | Integrity Monitoring</title>
+  <link rel="stylesheet" href="/static/index.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div>
+        <div class="brand-name">MPLADS GUARDIAN</div>
+        <div class="brand-subtitle">AI-ASSISTED INTEGRITY MONITORING · PROTOTYPE</div>
+      </div>
+    </div>
+    <div class="system-status"><span class="status-dot"></span> Monitoring workspace</div>
+  </header>
+
+  <nav class="nav" aria-label="Main navigation">
+    <button class="nav-link active" data-view="overview">Overview</button>
+    <button class="nav-link" data-view="works">Works Browser</button>
+    <button class="nav-link" data-view="module1">Module 1 · Overrun</button>
+    <button class="nav-link" data-view="module2">Module 2 · Financial</button>
+    <button class="nav-link" data-view="module3">Module 3 · Duplicates</button>
+    <button class="nav-link" data-view="newwork">Score a New Work</button>
+    <button class="nav-link" data-view="planned">Planned</button>
+  </nav>
+
+  <main class="container">
+    <section class="page-heading">
+      <div>
+        <div class="eyebrow">MONITORING & ANALYTICS</div>
+        <h1 id="pageTitle">Overview</h1>
+        <p id="pageDescription">A consolidated view of available model-scored MPLADS works.</p>
+      </div>
+      <button class="button button-secondary" id="refreshButton">↻ Refresh data</button>
+    </section>
+
+    <div id="message" class="message" role="status" hidden></div>
+
+    <section class="view active" id="view-overview">
+      <div class="grid kpi-grid" id="overviewKpis">
+        <article class="kpi-card"><span class="kpi-label">Loading dashboard data</span><strong>—</strong><span class="kpi-note">Connecting to API</span></article>
+      </div>
+
+      <div class="grid two-column section-gap">
+        <article class="panel">
+          <div class="panel-heading">
+            <div><h2>Module coverage</h2><p>Available scored records by module</p></div>
+          </div>
+          <div id="coverage" class="coverage-list"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-heading">
+            <div><h2>Interpretation guide</h2><p>How to use the model outputs</p></div>
+          </div>
+          <ul class="guide-list">
+            <li><strong>Risk scores</strong><span>Prioritize cases for review; they are not proof of misconduct.</span></li>
+            <li><strong>Financial anomalies</strong><span>Review unusual patterns and supporting evidence.</span></li>
+            <li><strong>Duplicate candidates</strong><span>Compare both works and verify location, dates, and scope.</span></li>
+            <li><strong>Human verification</strong><span>Administrative decisions require evidence beyond a model score.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-works">
+      <div class="panel">
+        <div class="panel-heading">
+          <div><h2>Works Browser</h2><p>Sample of the available scored records</p></div>
+          <input id="worksSearch" class="search" type="search" placeholder="Search work, state, agency…">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Work</th><th>State</th><th>Amount</th><th>Module 1</th><th>Module 2</th></tr></thead>
+            <tbody id="worksBody"><tr><td colspan="5">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="table-footnote" id="worksFootnote"></p>
+      </div>
+    </section>
+
+    <section class="view" id="view-module1">
+      <div class="section-intro"><h2>Time overrun & underutilization</h2><p>Scores from the existing Module 1 artifact.</p></div>
+      <div class="grid kpi-grid" id="module1Kpis"></div>
+      <div class="panel section-gap">
+        <div class="panel-heading"><div><h2>Scored works</h2><p>Showing a browser-friendly sample of the output.</p></div></div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Work</th><th>State</th><th>Time score</th><th>Time tier</th><th>Underutilization score</th><th>Tier</th></tr></thead>
+          <tbody id="module1Body"><tr><td colspan="6">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-module2">
+      <div class="section-intro"><h2>Financial anomaly screening</h2><p>Model outputs and review tiers from the existing Module 2 artifact.</p></div>
+      <div class="grid kpi-grid" id="module2Kpis"></div>
+      <div class="panel section-gap">
+        <div class="panel-heading"><div><h2>Scored works</h2><p>Rule flags and anomaly scores are screening evidence, not findings of fraud.</p></div></div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Work</th><th>State</th><th>Amount</th><th>Fused score</th><th>Review tier</th><th>Evidence / factors</th></tr></thead>
+          <tbody id="module2Body"><tr><td colspan="6">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-module3">
+      <div class="section-intro"><h2>Duplicate & ghost-work screening</h2><p>Pair-level similarity results from the existing Module 3 scoring artifact. Candidate matches require human verification.</p></div>
+      <div class="grid kpi-grid" id="module3Kpis"></div>
+      <div class="notice"><strong>How to interpret this module:</strong> the total is the number of candidate pairs scored, not the number of individual works or confirmed duplicates.</div>
+      <div class="panel section-gap">
+        <div class="panel-heading"><div><h2>Highest-scoring candidate pairs</h2><p>Compare both work descriptions and the available similarity components.</p></div><input id="pairsSearch" class="search" type="search" placeholder="Search descriptions or locations…"></div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Work A</th><th>Work B</th><th>State / location</th><th>Score</th><th>Similarity evidence</th><th>Review band</th></tr></thead>
+          <tbody id="module3Body"><tr><td colspan="6">Loading…</td></tr></tbody></table>
+        </div>
+        <p class="table-footnote" id="module3Footnote"></p>
+      </div>
+    </section>
+
+    <section class="view" id="view-newwork">
+      <div class="section-intro"><h2>Assess a new work</h2><p>Assessment form interface. Live inference must be connected to validated model-input pipelines before scores are presented.</p></div>
+      <div class="panel form-panel">
+        <div class="notice"><strong>Not yet connected:</strong> this form does not run the trained models yet. It will not invent risk scores or label a work as suspicious without inference.</div>
+        <form id="newWorkForm">
+          <div class="form-grid">
+            <label>Work description<input name="description" required placeholder="Describe the proposed work"></label>
+            <label>State<input name="state" required placeholder="State"></label>
+            <label>Category<input name="category" placeholder="Work category"></label>
+            <label>Estimated / sanctioned amount (₹)<input name="amount" type="number" min="0" step="0.01" placeholder="Amount"></label>
+            <label>Agency<input name="agency" placeholder="Implementing agency"></label>
+            <label>Recommended date<input name="recommended_date" type="date"></label>
+          </div>
+          <button class="button" type="submit">Check assessment readiness</button>
+          <p id="newWorkResult" class="form-result" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="view" id="view-planned">
+      <div class="grid two-column">
+        <article class="panel planned-card"><span class="planned-tag">Planned</span><h2>Module 4 integration</h2><p>Modular integration point for a future validated model and its explanations.</p></article>
+        <article class="panel planned-card"><span class="planned-tag">Planned</span><h2>Rule-based compliance</h2><p>Additional checks for execution progress, required documents, asset verification, and compliance.</p></article>
+        <article class="panel planned-card"><span class="planned-tag">Planned</span><h2>Live new-work inference</h2><p>Connect each model through a validated feature-preparation and prediction service.</p></article>
+        <article class="panel planned-card"><span class="planned-tag">Planned</span><h2>Audit trail</h2><p>Record assessment time, evidence, model version, and reviewer decisions.</p></article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>MPLADS Guardian · Prototype</span>
+      <span id="footerStatus">Waiting for data</span>
+    </footer>
+  </main>
+</body>
+</html>

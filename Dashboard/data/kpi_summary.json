@@ -1,0 +1,33 @@
+{
+  "generated_from": "Artifacts CSV files",
+  "module1": {
+    "works_scored": 13119,
+    "time_overrun_tiers": {
+      "Low": 9907,
+      "Medium": 386,
+      "High": 2826
+    },
+    "underutilization_tiers": {
+      "Low": 11869,
+      "Medium": 1221,
+      "High": 29
+    }
+  },
+  "module2": {
+    "works_scored": 20000,
+    "tier_counts": {
+      "Not flagged": 19899,
+      "Needs review": 101
+    },
+    "mean_fused_score": 8.59
+  },
+  "module3": {
+    "candidate_pairs_scored": 1265292,
+    "score_mean": 0.8125,
+    "band_counts": {
+      "Potential Duplicate": 882971,
+      "Needs Review": 373894,
+      "Lower Likelihood": 8427
+    }
+  }
+}

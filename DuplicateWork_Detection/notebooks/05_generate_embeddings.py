@@ -3,8 +3,16 @@ import numpy as np
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 
-INPUT = Path(__file__).resolve().parent.parent / "data" / "mplads_clean.csv"
-OUTPUT = Path(__file__).resolve().parent.parent / "outputs" / "sbert_embeddings.npy"
+# INPUT = Path(__file__).resolve().parent.parent / "data" / "mplads_clean.csv"
+# OUTPUT = Path(__file__).resolve().parent.parent / "outputs" / "sbert_embeddings.npy"
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODULE3_DIR = PROJECT_ROOT / "Artifacts" / "module3"
+
+INPUT = MODULE3_DIR / "mplads_clean.csv"
+OUTPUT = MODULE3_DIR / "sbert_embeddings.npy"
+
 
 df = pd.read_csv(INPUT)
 

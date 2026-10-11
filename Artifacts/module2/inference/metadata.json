@@ -1,0 +1,13 @@
+{
+  "feature_columns": [
+    "f1_threshold_avoidance",
+    "f2_benford_excess",
+    "f3_round_number",
+    "f4_agency_cost_trend",
+    "f5_approval_gap",
+    "f6_agency_fingerprint"
+  ],
+  "training_rows": 20000,
+  "calibration_method": "empirical reference percentile",
+  "score_interpretation": "Percentile indicates how extreme a score is relative to the training reference distribution; it is not a probability of fraud."
+}

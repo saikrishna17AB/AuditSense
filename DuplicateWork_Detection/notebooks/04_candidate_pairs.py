@@ -1,8 +1,16 @@
 import pandas as pd
 from pathlib import Path
 
-INPUT = Path(__file__).resolve().parent.parent / "data" / "mplads_clean.csv"
-OUTPUT = Path(__file__).resolve().parent.parent / "outputs" / "candidate_pairs.csv"
+# INPUT = Path(__file__).resolve().parent.parent / "data" / "mplads_clean.csv"
+# OUTPUT = Path(__file__).resolve().parent.parent / "outputs" / "candidate_pairs.csv"
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODULE3_DIR = PROJECT_ROOT / "Artifacts" / "module3"
+
+INPUT = MODULE3_DIR / "mplads_clean.csv"
+OUTPUT = MODULE3_DIR / "candidate_pairs.csv"
+
 
 df = pd.read_csv(INPUT)
 

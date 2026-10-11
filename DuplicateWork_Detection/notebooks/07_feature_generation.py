@@ -5,9 +5,18 @@ from rapidfuzz.fuzz import ratio
 
 BASE = Path(__file__).resolve().parent.parent
 
-INPUT_FILE = BASE / "outputs" / "semantic_pairs.csv"
-DATA_FILE = BASE / "data" / "mplads_clean.csv"
-OUTPUT_FILE = BASE / "outputs" / "training_features.csv"
+# INPUT_FILE = BASE / "outputs" / "semantic_pairs.csv"
+# DATA_FILE = BASE / "data" / "mplads_clean.csv"
+# OUTPUT_FILE = BASE / "outputs" / "training_features.csv"
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODULE3_DIR = PROJECT_ROOT / "Artifacts" / "module3"
+
+INPUT_FILE = MODULE3_DIR / "semantic_pairs.csv"
+DATA_FILE = MODULE3_DIR / "mplads_clean.csv"
+OUTPUT_FILE = MODULE3_DIR / "training_features.csv"
+
 
 pairs = pd.read_csv(INPUT_FILE)
 data = pd.read_csv(DATA_FILE)
@@ -140,14 +149,25 @@ def calculate_geo_similarity(row_a, row_b):
 # Temporal similarity
 # ---------------------------------------------------------
 
-def calculate_time_similarity(date_a, date_b):
+# def calculate_time_similarity(date_a, date_b):
 
-    date_a = pd.to_datetime(date_a)
-    date_b = pd.to_datetime(date_b)
+#     date_a = pd.to_datetime(date_a)
+#     date_b = pd.to_datetime(date_b)
+
+#     delta_days = abs((date_a - date_b).days)
+
+#     return np.exp(-delta_days / 180.0)
+
+
+def calculate_time_similarity(date_a, date_b):
+    date_a = pd.to_datetime(date_a, errors="coerce")
+    date_b = pd.to_datetime(date_b, errors="coerce")
+
+    if pd.isna(date_a) or pd.isna(date_b):
+        return 0.0
 
     delta_days = abs((date_a - date_b).days)
-
-    return np.exp(-delta_days / 180.0)
+    return float(np.exp(-delta_days / 180.0))
 
 
 # ---------------------------------------------------------
