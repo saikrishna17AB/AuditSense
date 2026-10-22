@@ -1,6 +1,6 @@
 ﻿from functools import lru_cache
 from pathlib import Path
-
+import traceback
 import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, request, send_from_directory
@@ -420,117 +420,325 @@ def module3():
 MODULE1_SCORES = PROJECT_ROOT / "Artifacts" / "module1" / "module1_scores.csv"
 
 
-def assess_module1_reference(payload):
-    from rapidfuzz.fuzz import ratio
+# def assess_module1_reference(payload):
+#     from rapidfuzz.fuzz import ratio
 
-    if not MODULE1_SCORES.exists():
-        raise FileNotFoundError(
-            f"Module 1 scores not found: {MODULE1_SCORES}"
-        )
+#     if not MODULE1_SCORES.exists():
+#         raise FileNotFoundError(
+#             f"Module 1 scores not found: {MODULE1_SCORES}"
+#         )
 
-    history = pd.read_csv(MODULE1_SCORES, low_memory=False)
+#     history = pd.read_csv(MODULE1_SCORES, low_memory=False)
 
-    description = clean_value(
-        payload.get("WORK")
-        or payload.get("work")
-        or payload.get("description")
-        or payload.get("work_description")
+#     description = clean_value(
+#         payload.get("WORK")
+#         or payload.get("work")
+#         or payload.get("description")
+#         or payload.get("work_description")
+#     )
+#     state = normalized_value(
+#         payload.get("STATE") or payload.get("state")
+#     )
+#     work_type = normalized_value(
+#         payload.get("CATEGORY")
+#         or payload.get("category")
+#         or payload.get("work_type")
+#         or description
+#     )
+
+#     if not description and not work_type:
+#         return {
+#             "status": "unavailable",
+#             "message": "Enter a work description to compare historical works."
+#         }
+
+#     history["_state_match"] = (
+#         history["state"].fillna("").astype(str).str.lower().str.strip()
+#         == state
+#     ) if state else False
+
+#     history["_text_similarity"] = history["work_type"].fillna("").astype(
+#         str
+#     ).apply(lambda value: ratio(work_type, value.lower()) / 100.0)
+
+#     # Prefer same-state works, but fall back to text similarity if needed.
+#     same_state = history[history["_state_match"]]
+#     pool = same_state if not same_state.empty else history
+
+#     pool = pool.copy()
+#     pool["_text_similarity"] = pool["work_type"].fillna("").astype(
+#         str
+#     ).apply(lambda value: ratio(work_type, value.lower()) / 100.0)
+
+#     amount = payload.get("amount") or payload.get("sanctioned_amount")
+#     try:
+#         amount = float(amount) if amount not in (None, "") else None
+#     except (TypeError, ValueError):
+#         amount = None
+
+#     if amount is not None and amount > 0:
+#         historical_amount = pd.to_numeric(
+#             pool["sanctioned_amount"], errors="coerce"
+#         ).clip(lower=1)
+#         pool["_amount_similarity"] = (
+#             1 - (historical_amount - amount).abs()
+#             / historical_amount.clip(lower=amount).clip(lower=1)
+#         ).clip(lower=0)
+#         pool["_amount_similarity"] = pool["_amount_similarity"].fillna(0)
+#         pool["_match_score"] = (
+#             0.75 * pool["_text_similarity"]
+#             + 0.25 * pool["_amount_similarity"]
+#         )
+#     else:
+#         pool["_match_score"] = pool["_text_similarity"]
+
+#     best = pool.sort_values("_match_score", ascending=False).head(5)
+#     best = best[best["_match_score"] > 0]
+
+#     if best.empty:
+#         return {
+#             "status": "unavailable",
+#             "message": "No sufficiently similar historical works were found."
+#         }
+
+#     def weighted_average(column):
+#         values = pd.to_numeric(best[column], errors="coerce")
+#         weights = best["_match_score"]
+#         valid = values.notna() & weights.notna() & (weights > 0)
+#         if not valid.any():
+#             return None
+#         return round(float((values[valid] * weights[valid]).sum()
+#                            / weights[valid].sum()), 2)
+
+#     return {
+#         "status": "reference_estimate",
+#         "method": "similar_historical_works",
+#         "time_overrun_score": weighted_average("time_overrun_score"),
+#         "underutilization_score": weighted_average("underutilization_score"),
+#         "similar_works_used": int(len(best)),
+#         "best_match_similarity": round(float(best["_match_score"].max()), 3),
+#         "evidence": [
+#             {
+#                 "work": clean_value(row.get("work_raw")),
+#                 "state": clean_value(row.get("state")),
+#                 "similarity": round(float(row["_match_score"]), 3),
+#                 "time_overrun_score": clean_value(row.get("time_overrun_score")),
+#                 "underutilization_score": clean_value(row.get("underutilization_score"))
+#             }
+#             for _, row in best.iterrows()
+#         ],
+#         "notice": (
+#             "These are estimates derived from similar historical works, "
+#             "not predictions generated by the Module 1 ML models."
+#         )
+#     }
+
+
+def assess_module1_ml(payload):
+    """Run Module 1 ML models against one newly entered work.
+
+    This follows the feature preparation and SVM approach used by
+    Time_Cost_Overrun/test_single_work.py.
+    """
+    from sklearn.svm import SVC
+    from sklearn.preprocessing import StandardScaler, OneHotEncoder
+
+    from Time_Cost_Overrun.leakage_safe.build_features import (
+        build_features,
+        FEATURES_NUM,
+        FEATURES_CAT,
+        _agency_id,
+        _work_type,
+        _SEASON_MAP,
     )
-    state = normalized_value(
-        payload.get("STATE") or payload.get("state")
-    )
-    work_type = normalized_value(
-        payload.get("CATEGORY")
-        or payload.get("category")
-        or payload.get("work_type")
-        or description
+    from Time_Cost_Overrun.features.prior_history import (
+        add_prior_reliability,
     )
 
-    if not description and not work_type:
-        return {
-            "status": "unavailable",
-            "message": "Enter a work description to compare historical works."
-        }
-
-    history["_state_match"] = (
-        history["state"].fillna("").astype(str).str.lower().str.strip()
-        == state
-    ) if state else False
-
-    history["_text_similarity"] = history["work_type"].fillna("").astype(
-        str
-    ).apply(lambda value: ratio(work_type, value.lower()) / 100.0)
-
-    # Prefer same-state works, but fall back to text similarity if needed.
-    same_state = history[history["_state_match"]]
-    pool = same_state if not same_state.empty else history
-
-    pool = pool.copy()
-    pool["_text_similarity"] = pool["work_type"].fillna("").astype(
-        str
-    ).apply(lambda value: ratio(work_type, value.lower()) / 100.0)
-
-    amount = payload.get("amount") or payload.get("sanctioned_amount")
+    amount_raw = payload.get("amount") or payload.get("sanctioned_amount")
     try:
-        amount = float(amount) if amount not in (None, "") else None
+        amount = float(amount_raw)
     except (TypeError, ValueError):
-        amount = None
+        raise ValueError("Enter a valid positive amount for Module 1.")
 
-    if amount is not None and amount > 0:
-        historical_amount = pd.to_numeric(
-            pool["sanctioned_amount"], errors="coerce"
-        ).clip(lower=1)
-        pool["_amount_similarity"] = (
-            1 - (historical_amount - amount).abs()
-            / historical_amount.clip(lower=amount).clip(lower=1)
-        ).clip(lower=0)
-        pool["_amount_similarity"] = pool["_amount_similarity"].fillna(0)
-        pool["_match_score"] = (
-            0.75 * pool["_text_similarity"]
-            + 0.25 * pool["_amount_similarity"]
+    if not np.isfinite(amount) or amount <= 0:
+        raise ValueError("The Module 1 amount must be greater than zero.")
+
+    state = clean_value(payload.get("state") or payload.get("STATE"))
+    agency = clean_value(
+        payload.get("agency")
+        or payload.get("agency_name")
+        or payload.get("agency_raw")
+    )
+    description = clean_value(
+        payload.get("description")
+        or payload.get("work")
+        or payload.get("work_description")
+        or payload.get("WORK")
+    )
+
+    if not state or not agency or not description:
+        raise ValueError(
+            "Module 1 requires state, agency, and work description."
         )
+
+    def parse_date(value, field_name):
+        value = clean_value(value)
+        if not value:
+            raise ValueError(
+                f"Module 1 requires the {field_name}."
+            )
+
+        # parsed = pd.to_datetime(value, errors="coerce", dayfirst=True)
+        parsed = pd.to_datetime(value, errors="coerce", format="ISO8601")
+        if pd.isna(parsed):
+            raise ValueError(f"Invalid {field_name}: {value}")
+        return parsed
+
+    recommended_date = parse_date(
+        payload.get("recommended_date"), "recommended date"
+    )
+    sanction_date = parse_date(
+        payload.get("sanction_date"), "sanction date"
+    )
+
+    if sanction_date < recommended_date:
+        raise ValueError(
+            "Sanction date cannot precede recommended date."
+        )
+
+    # Load historical training data using the module's own feature builder.
+    history = build_features()
+
+    # Prepare the new work using the same feature definitions as the
+    # standalone single-work test.
+    raw = pd.DataFrame([{
+        "agency_raw": agency,
+        "work_raw": description,
+        "state": state,
+        "sanctioned_amount": amount,
+        "sanction_date": sanction_date,
+        "recommended_date": recommended_date,
+    }])
+
+    raw["agency_id"] = raw["agency_raw"].apply(_agency_id)
+    raw["work_type"] = raw["work_raw"].apply(_work_type)
+    raw = add_prior_reliability(raw, raw_col="agency_raw")
+
+    raw["approval_gap_days"] = (
+        sanction_date - recommended_date
+    ).days
+    raw["sanction_season"] = _SEASON_MAP.get(sanction_date.month)
+
+    # Match the historical agency-rate features. For a new agency, use
+    # dataset-wide historical label rates as the cold-start fallback.
+    agency_rows = history[
+        history["agency_id"] == raw.loc[0, "agency_id"]
+    ]
+
+    if agency_rows.empty:
+        time_rate = float(history["time_overrun_label"].mean())
+        under_rate = float(history["underutilization_label"].mean())
+        cold_start = True
     else:
-        pool["_match_score"] = pool["_text_similarity"]
+        time_rate = float(agency_rows["time_overrun_label"].mean())
+        under_rate = float(agency_rows["underutilization_label"].mean())
+        cold_start = False
 
-    best = pool.sort_values("_match_score", ascending=False).head(5)
-    best = best[best["_match_score"] > 0]
+    raw["agency_alltime_time_rate"] = time_rate
+    raw["agency_alltime_underutil_rate"] = under_rate
 
-    if best.empty:
-        return {
-            "status": "unavailable",
-            "message": "No sufficiently similar historical works were found."
+    results = {}
+
+    targets = [
+        ("time_overrun_label", "time_overrun"),
+        ("underutilization_label", "underutilization"),
+    ]
+
+    for label_column, output_name in targets:
+        train = history.dropna(
+            subset=FEATURES_NUM + FEATURES_CAT + [label_column]
+        ).copy()
+
+        if train.empty or train[label_column].nunique() < 2:
+            raise ValueError(
+                f"Insufficient training data for {output_name} model."
+            )
+
+        # Fit preprocessing and model using historical rows.
+        scaler = StandardScaler()
+        X_num = scaler.fit_transform(
+            train[FEATURES_NUM].to_numpy(dtype=float)
+        )
+
+        try:
+            encoder = OneHotEncoder(
+                handle_unknown="ignore",
+                sparse_output=False,
+            )
+        except TypeError:
+            # Compatibility with older scikit-learn versions.
+            encoder = OneHotEncoder(
+                handle_unknown="ignore",
+                sparse=False,
+            )
+
+        X_cat = encoder.fit_transform(train[FEATURES_CAT])
+        X_train = np.hstack([X_num, X_cat])
+        y_train = train[label_column].astype(int).to_numpy()
+
+        model = SVC(
+            kernel="rbf",
+            probability=True,
+            random_state=42,
+            class_weight="balanced",
+        )
+        model.fit(X_train, y_train)
+
+        missing = raw[FEATURES_NUM + FEATURES_CAT].isna().any()
+        if missing.any():
+            names = ", ".join(missing[missing].index)
+            raise ValueError(
+                f"Module 1 cannot calculate required features: {names}"
+            )
+
+        new_num = scaler.transform(
+            raw[FEATURES_NUM].to_numpy(dtype=float)
+        )
+        new_cat = encoder.transform(raw[FEATURES_CAT])
+        X_new = np.hstack([new_num, new_cat])
+
+        # This is the model's estimated positive-class score on a 0–100
+        # scale; it is not guaranteed to be a calibrated probability.
+        score = float(model.predict_proba(X_new)[0, 1] * 100)
+
+        tier = (
+            "Low" if score < 40
+            else "Medium" if score < 70
+            else "High"
+        )
+
+        results[output_name] = {
+            "score": round(score, 2),
+            "tier": tier,
         }
-
-    def weighted_average(column):
-        values = pd.to_numeric(best[column], errors="coerce")
-        weights = best["_match_score"]
-        valid = values.notna() & weights.notna() & (weights > 0)
-        if not valid.any():
-            return None
-        return round(float((values[valid] * weights[valid]).sum()
-                           / weights[valid].sum()), 2)
 
     return {
-        "status": "reference_estimate",
-        "method": "similar_historical_works",
-        "time_overrun_score": weighted_average("time_overrun_score"),
-        "underutilization_score": weighted_average("underutilization_score"),
-        "similar_works_used": int(len(best)),
-        "best_match_similarity": round(float(best["_match_score"].max()), 3),
-        "evidence": [
-            {
-                "work": clean_value(row.get("work_raw")),
-                "state": clean_value(row.get("state")),
-                "similarity": round(float(row["_match_score"]), 3),
-                "time_overrun_score": clean_value(row.get("time_overrun_score")),
-                "underutilization_score": clean_value(row.get("underutilization_score"))
-            }
-            for _, row in best.iterrows()
-        ],
+        "status": "completed",
+        "method": "svm_single_work_inference",
+        "time_overrun_score": results["time_overrun"]["score"],
+        "time_overrun_tier": results["time_overrun"]["tier"],
+        "underutilization_score": results["underutilization"]["score"],
+        "underutilization_tier": results["underutilization"]["tier"],
+        "model": "SVM",
+        "cold_start_agency": cold_start,
         "notice": (
-            "These are estimates derived from similar historical works, "
-            "not predictions generated by the Module 1 ML models."
-        )
+            "Scores are generated by SVM models fitted on historical "
+            "training data during this assessment. They are model scores, "
+            "not guaranteed calibrated probabilities. For production, "
+            "save and load versioned fitted models instead of refitting "
+            "on every request."
+        ),
     }
 
 
@@ -819,7 +1027,8 @@ def assess_new_work():
 
         # Module 1: historical-reference estimate.
         try:
-            module1_result = assess_module1_reference(payload)
+            # module1_result = assess_module1_reference(payload)
+            module1_result = assess_module1_ml(payload)
         except FileNotFoundError:
             module1_result = {
                 "status": "unavailable",
@@ -847,19 +1056,26 @@ def assess_new_work():
                 else "Module 2 unavailable"
             ),
             "time_cost_overrun": (
-                "Historical estimate"
-                if module1_result["status"] == "reference_estimate"
+                # "Historical estimate"
+                # if module1_result["status"] == "reference_estimate"
+                # else "Unavailable"
+
+                "Live ML prediction"
+                if module1_result["status"] == "completed"
                 else "Unavailable"
             ),
         }
 
         result["assessment_notice"] = (
-        "Duplicate scores rank potentially similar historical works; "
-        "they do not confirm duplication. Module 2 reference percentiles "
-        "measure unusualness, not fraud probability. Preliminary financial "
-        "rule checks are reported separately. Module 1 results are "
-        "historical-reference estimates, not fresh ML predictions. "
-        "Do not interpret any result as proof of fraud."
+            
+                "Time and cost overrun uses SVM models to estimate time-overrun and "
+                "under-utilization risk scores for the newly entered work. "
+                "Finanicalanomaly detection reference percentiles measure unusualness, not "
+                "fraud probability. Duplicate detection ranks potentially similar historical "
+                "works; matches require human verification. "
+                "No result alone proves fraud or misconduct."
+        
+
         )
 
         return jsonify(result)

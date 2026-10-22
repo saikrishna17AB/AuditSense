@@ -1,0 +1,122 @@
+Test Cases:
+
+Work description: Construction of cement concrete road from the main road to the government primary school in the village
+State: Andhra Pradesh
+Constituency: Tadepalligudem
+City / Town: Tadepalligudem
+Ward: 5
+Block / Mandal: Tadepalligudem
+Village: Apparaopeta
+Category: Road Construction
+IDA approval: Approved
+House: Not Applicable
+Estimated / sanctioned amount (₹): 1000000
+Agency: Gram Panchayat
+Recommended date: 2024-01-15
+Sanction date: 2024-02-15
+
+
+Work description: Supply and installation of high mast LED street lighting system at major public junctions
+State: Andhra Pradesh
+Constituency: Vijayawada
+City / Town: Vijayawada
+Ward: 18
+Block / Mandal: Vijayawada Urban
+Village: Not Applicable
+Category: Street Lighting
+IDA approval: Approved
+House: Not Applicable
+Estimated / sanctioned amount (₹): 2475000
+Agency: ABC Electrical Contractors
+Recommended date: 2024-03-01
+Sanction date: 2024-03-03
+
+Result:
+
+Assessing work against historical records…
+New Work Assessment
+Time and cost overrun uses SVM models to estimate time-overrun and under-utilization risk scores for the newly entered work. Finanicalanomaly detection reference percentiles measure unusualness, not fraud probability. Duplicate detection ranks potentially similar historical works; matches require human verification. No result alone proves fraud or misconduct.
+
+Financial Anomaly Detection
+Reference percentile: 95.47
+Isolation Forest: 96.12th percentile; Autoencoder: 94.81th percentile. Percentiles measure unusualness, not fraud probability.
+
+Time & Cost Overrun Risk Analysis
+Live ML prediction
+Time-overrun score: 7.11/100 (Low); under-utilization score: 3.41/100 (Low). Model: SVM. These are model scores, not guaranteed calibrated probabilities.
+
+Closest Historical Works
+Similarity scores rank candidates; they are not probabilities of fraud or proof of duplication.
+
+Historical work	Similarity score	Review band	Evidence components
+NA - Street lights
+Telangana · ZAHIRABAD · Jharasangam · Edakulapalle
+
+54.1%	Lower Likelihood	Text: 72.2% | Location: 16.8% | Date: 97.3% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Dhaulpur · Odi Ka Pura
+
+54.0%	Lower Likelihood	Text: 72.3% | Location: 17.5% | Date: 95.7% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Rajakhera · Katarpura
+
+53.9%	Lower Likelihood	Text: 73.0% | Location: 15.2% | Date: 95.7% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Baseri · Hingota
+
+53.7%	Lower Likelihood	Text: 72.1% | Location: 16.7% | Date: 95.7% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Dhaulpur · Singhawali
+
+53.5%	Lower Likelihood	Text: 72.5% | Location: 14.6% | Date: 95.7% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Dhaulpur · Chainapura
+
+53.4%	Lower Likelihood	Text: 72.2% | Location: 14.6% | Date: 95.7% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Rajakhera · Basai Kare
+
+53.3%	Lower Likelihood	Text: 72.0% | Location: 14.6% | Date: 95.7% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Dhaulpur · Mustfabad
+
+53.2%	Lower Likelihood	Text: 73.2% | Location: 11.4% | Date: 95.7% | Structured: 0.0%
+NA - Street lights
+Andhra Pradesh · ONGOLE · Yerragondapalem · Palutla
+
+53.2%	Lower Likelihood	Text: 72.1% | Location: 25.0% | Date: 81.0% | Structured: 0.0%
+NA - Street lights
+Rajasthan · KARAULI-DHOLPUR(SC) · Dhaulpur · Kotra
+
+53.1%	Lower Likelihood	Text: 72.0% | Location: 13.8% | Date: 95.7% | Structured: 0.0%
+
+Work description: Construction of cement concrete road from the main road to the government primary school in the village
+State: Andhra Pradesh
+Constituency: Tadepalligudem
+City / Town: Tadepalligudem
+Ward: 5
+Block / Mandal: Tadepalligudem
+Village: Apparaopeta
+Category: Road Construction
+IDA approval: Approved
+House: Not Applicable
+Estimated / sanctioned amount (₹): 980000
+Agency: Gram Panchayat
+Recommended date: 2024-01-20
+Sanction date: 2024-02-20
+
+
+Work description: Construction of a rural community hall building delayed due to slow execution and incomplete utilization of sanctioned funds
+State: Andhra Pradesh
+Constituency: Tadepalligudem
+City / Town: Tadepalligudem
+Ward: 3
+Block / Mandal: Tadepalligudem
+Village: Apparaopeta
+Category: Community Infrastructure
+IDA approval: Approved
+House: Not Applicable
+Estimated / sanctioned amount (₹): 1450000
+Agency: Gram Panchayat
+Recommended date: 2023-01-10
+Sanction date: 2023-06-15

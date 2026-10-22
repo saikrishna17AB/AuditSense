@@ -12,10 +12,10 @@ const $ = (id) => document.getElementById(id);
 const PAGE_INFO = {
   overview: ["Overview", "A consolidated view of available model-scored MPLADS works."],
   works: ["Works Browser", "Browse available model-scored work records."],
-  module1: ["Module 1 · Overrun", "Time-overrun and underutilization screening."],
-  module2: ["Module 2 · Financial", "Financial anomaly screening and review evidence."],
-  module3: ["Module 3 · Duplicates", "Candidate pairs ranked for duplicate-work review."],
-  newwork: ["Score a New Work", "New-work inference is not connected yet."],
+  module1: [" Overrun", "Time-overrun and underutilization screening."],
+  module2: [" Financial Anomaly" , "Financial anomaly screening and review evidence."],
+  module3: [" Duplicates", "Candidate pairs ranked for duplicate-work review."],
+  // newwork: ["Score a New Work", "New-work inference is not connected yet."],
   planned: ["Planned Capabilities", "Future modules and integrations."]
 };
 
@@ -556,11 +556,11 @@ $("newWorkForm").addEventListener("submit", async event => {
     const module1 = data.module1_screening || {};
     const module2 = data.module2_screening || {};
     const cards = [
-      {
-        title: "Duplicate Work Detection",
-        value: `${Number(data.reference_count || 0).toLocaleString("en-IN")} reference works`,
-        note: `${Number(data.candidates_scored || 0).toLocaleString("en-IN")} text-similar candidates ranked. Top review band: ${summary.top_duplicate_tier || "Unavailable"}. Candidate matches require verification.`
-      },
+      // {
+      //   title: "Duplicate Work Detection",
+      //   value: `${Number(data.reference_count || 0).toLocaleString("en-IN")} reference works`,
+      //   note: `${Number(data.candidates_scored || 0).toLocaleString("en-IN")} text-similar candidates ranked. Top review band: ${summary.top_duplicate_tier || "Unavailable"}. Candidate matches require verification.`
+      // },
       {
         title: "Financial Anomaly Detection",
         value: module2.status === "completed"
@@ -570,13 +570,25 @@ $("newWorkForm").addEventListener("submit", async event => {
           ? `Isolation Forest: ${module2.isolation_forest_percentile}th percentile; Autoencoder: ${module2.autoencoder_percentile}th percentile. Percentiles measure unusualness, not fraud probability.`
           : (module2.message || "The required financial features could not all be calculated. Check that recommended and sanction dates, amount, state, and agency are supplied.")
       },
+      // {
+        // title: "Time & Cost Overrun Risk Analysis",
+        // value: module1.status === "reference_estimate" ? "Historical estimate" : "Unavailable",
+        // note: module1.status === "reference_estimate"
+        //   ? `Estimated time-overrun score: ${module1.time_overrun_score ?? "—"}/100; under-utilization score: ${module1.underutilization_score ?? "—"}/100. Based on ${module1.similar_works_used ?? 0} similar historical works; not a fresh ML prediction.`
+        //   : (module1.message || "A historical-reference estimate could not be calculated for this work.")
+
+      // }
+            
       {
         title: "Time & Cost Overrun Risk Analysis",
-        value: module1.status === "reference_estimate" ? "Historical estimate" : "Unavailable",
-        note: module1.status === "reference_estimate"
-          ? `Estimated time-overrun score: ${module1.time_overrun_score ?? "—"}/100; under-utilization score: ${module1.underutilization_score ?? "—"}/100. Based on ${module1.similar_works_used ?? 0} similar historical works; not a fresh ML prediction.`
-          : (module1.message || "A historical-reference estimate could not be calculated for this work.")
-      }
+        value: module1.status === "completed"
+          ? "Live ML prediction"
+          : "Unavailable",
+        note: module1.status === "completed"
+          ? `Time-overrun score: ${module1.time_overrun_score ?? "—"}/100 (${module1.time_overrun_tier || "Unclassified"}); under-utilization score: ${module1.underutilization_score ?? "—"}/100 (${module1.underutilization_tier || "Unclassified"}). Model: ${module1.model || "ML model"}. These are model scores, not guaranteed calibrated probabilities.`
+          : (module1.error || module1.message || "The Module 1 prediction could not be calculated.")
+      },
+
     ];
 
     cards.forEach(item => {
@@ -599,42 +611,42 @@ $("newWorkForm").addEventListener("submit", async event => {
     result.appendChild(grid);
 
     // Financial rule checks
-    const financialHeading = document.createElement("h3");
-    financialHeading.textContent = "Financial Rule Checks";
-    result.appendChild(financialHeading);
+    // const financialHeading = document.createElement("h3");
+    // financialHeading.textContent = "Financial Rule Checks";
+    // result.appendChild(financialHeading);
 
-    const checks = data.financial_screening?.checks || [];
-    const checkGrid = document.createElement("div");
-    checkGrid.className = "assessment-checks";
+    // const checks = data.financial_screening?.checks || [];
+    // const checkGrid = document.createElement("div");
+    // checkGrid.className = "assessment-checks";
 
-    checks.forEach(check => {
-      const card = document.createElement("article");
-      card.className = "assessment-check";
+    // checks.forEach(check => {
+    //   const card = document.createElement("article");
+    //   card.className = "assessment-check";
 
-      const title = document.createElement("strong");
-      title.textContent = check.name;
+    //   const title = document.createElement("strong");
+    //   title.textContent = check.name;
 
-      const status = document.createElement("p");
-      status.className = "assessment-status";
-      status.textContent = ({
-        flagged: "Flagged",
-        not_flagged: "Not flagged",
-        unavailable: "Unavailable"
-      })[check.status] || check.status || "Unknown";
+    //   const status = document.createElement("p");
+    //   status.className = "assessment-status";
+    //   status.textContent = ({
+    //     flagged: "Flagged",
+    //     not_flagged: "Not flagged",
+    //     unavailable: "Unavailable"
+    //   })[check.status] || check.status || "Unknown";
 
-      const explanation = document.createElement("p");
-      explanation.textContent = check.explanation || "No explanation provided.";
+    //   const explanation = document.createElement("p");
+    //   explanation.textContent = check.explanation || "No explanation provided.";
 
-      card.append(title, status, explanation);
-      checkGrid.appendChild(card);
-    });
+    //   card.append(title, status, explanation);
+    //   checkGrid.appendChild(card);
+    // });
 
-    result.appendChild(checkGrid);
+    // result.appendChild(checkGrid);
 
-    const financialNotice = document.createElement("p");
-    financialNotice.className = "muted";
-    financialNotice.textContent = data.financial_screening?.notice || "";
-    result.appendChild(financialNotice);
+    // const financialNotice = document.createElement("p");
+    // financialNotice.className = "muted";
+    // financialNotice.textContent = data.financial_screening?.notice || "";
+    // result.appendChild(financialNotice);
 
     // Historical duplicate candidates
     const matchesHeading = document.createElement("h3");
