@@ -1,9 +1,4 @@
-# MPLADS Guardian
 
-**AI-powered early-warning platform for the Members of Parliament Local Area Development Scheme (MPLADS).**
-Team Lumexa · Smart India Hackathon 2026 · Problem Statement 26102
-
-MPLADS Guardian scores sanctioned works for delay risk, unusual financial patterns and possible duplicate claims, and gives every flag a plain-language reason. Scores point records out for **human review**; they do not indicate fraud.
 
 ---
 
@@ -250,4 +245,3 @@ Python 3.10+, `pandas`, `numpy`, `scipy`, `scikit-learn`, `tensorflow`, `sentenc
 
 ## Team
 
-Lumexa - Smart India Hackathon 2026
